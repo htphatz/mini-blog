@@ -14,13 +14,18 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
     private final ProfileService profileService;
 
-    @PostMapping
+    @PostMapping("users")
     public APIResponse<ProfileResponse> createProfile(@Valid @RequestBody ProfileRequest request) {
         ProfileResponse result = profileService.createProfile(request);
         return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
-    @GetMapping
+    @PostMapping("users/no-format")
+    public ProfileResponse createProfileWithNoFormat(@Valid @RequestBody ProfileRequest request) {
+       return profileService.createProfile(request);
+    }
+
+    @GetMapping("users")
     public APIResponse<PageDto<ProfileResponse>> getAllProfiles(
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
@@ -28,13 +33,13 @@ public class ProfileController {
         return APIResponse.<PageDto<ProfileResponse>>builder().result(result).build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("users/{id}")
     public APIResponse<ProfileResponse> getProfileById(@PathVariable("id") String id) {
         ProfileResponse result = profileService.getById(id);
         return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("users/{id}")
     public APIResponse<Void> deleteProfileById(@PathVariable("id") String id) {
         profileService.deleteProfile(id);
         return APIResponse.<Void>builder().build();

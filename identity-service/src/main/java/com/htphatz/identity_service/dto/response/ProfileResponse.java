@@ -1,4 +1,4 @@
-package com.htphatz.profile_service.dto.response;
+package com.htphatz.identity_service.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

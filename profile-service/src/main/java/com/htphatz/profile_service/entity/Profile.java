@@ -21,15 +21,18 @@ public class Profile {
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private String id;
 
-    @Property(value = "first_name")
+    @Property(value = "firstName")
     private String firstName;
 
-    @Property(value = "last_name")
+    @Property(value = "lastName")
     private String lastName;
 
-    @Property(value = "email")
-    private String email;
+    @Property(value = "phoneNumber")
+    private String phoneNumber;
 
-    @Property(value = "user_id")
+    @Property(value = "address")
+    private String address;
+
+    @Property(value = "userId")
     private String userId;
 }

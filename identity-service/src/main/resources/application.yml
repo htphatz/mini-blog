@@ -11,7 +11,7 @@ spring:
     password: ${DBMS_PASSWORD:mysql}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
 
 jwt:

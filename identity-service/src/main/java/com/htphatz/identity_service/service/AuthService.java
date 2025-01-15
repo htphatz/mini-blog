@@ -1,9 +1,6 @@
 package com.htphatz.identity_service.service;
 
-import com.htphatz.identity_service.dto.request.IntrospectRequest;
-import com.htphatz.identity_service.dto.request.LoginRequest;
-import com.htphatz.identity_service.dto.request.LogoutRequest;
-import com.htphatz.identity_service.dto.request.RegisterRequest;
+import com.htphatz.identity_service.dto.request.*;
 import com.htphatz.identity_service.dto.response.IntrospectResponse;
 import com.htphatz.identity_service.dto.response.LoginResponse;
 import com.htphatz.identity_service.dto.response.UserResponse;
@@ -12,10 +9,12 @@ import com.htphatz.identity_service.entity.Role;
 import com.htphatz.identity_service.entity.User;
 import com.htphatz.identity_service.exception.AppException;
 import com.htphatz.identity_service.exception.ErrorCode;
+import com.htphatz.identity_service.mapper.ProfileMapper;
 import com.htphatz.identity_service.mapper.UserMapper;
 import com.htphatz.identity_service.repository.InvalidatedTokenRepository;
 import com.htphatz.identity_service.repository.RoleRepository;
 import com.htphatz.identity_service.repository.UserRepository;
+import com.htphatz.identity_service.repository.httpclient.ProfileClient;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -41,8 +40,10 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
+    private final ProfileClient profileClient;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final ProfileMapper profileMapper;
 
     @Value(value = "${jwt.signerKey}")
     private String signerKey;
@@ -52,8 +53,6 @@ public class AuthService {
 
     public UserResponse register(RegisterRequest request) {
         User user = User.builder()
-                .firstName(request.getFirstName())
-                .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
@@ -63,7 +62,13 @@ public class AuthService {
         user.setRoles(roles);
 
         try {
-            userRepository.save(user);
+            user = userRepository.save(user);
+
+            // Xử lý profile
+            ProfileRequest profileRequest = profileMapper.toProfileRequest(request);
+            profileRequest.setUserId(user.getId());
+            profileClient.createProfile(profileRequest);
+
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }

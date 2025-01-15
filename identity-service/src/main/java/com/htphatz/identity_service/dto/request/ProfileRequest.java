@@ -1,10 +1,12 @@
-package com.htphatz.profile_service.dto.request;
+package com.htphatz.identity_service.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Builder
 public class ProfileRequest {
 
