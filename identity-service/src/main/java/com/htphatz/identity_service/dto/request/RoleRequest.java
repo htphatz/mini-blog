@@ -1,6 +1,7 @@
 package com.htphatz.identity_service.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -13,6 +14,6 @@ public class RoleRequest {
     @NotBlank(message = "Name is required")
     private String name;
 
-    @NotBlank(message = "Permissions is required")
+    @NotNull(message = "Permissions is required")
     private Set<String> permissions;
 }
