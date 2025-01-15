@@ -1,4 +1,4 @@
-package com.htphatz.identity_service.exception;
+package com.htphatz.profile_service.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -6,10 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     USER_EXISTED(409, "User existed", HttpStatus.CONFLICT),
-    ROLE_NOT_FOUND(404, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(404, "User not found", HttpStatus.NOT_FOUND),
-    PASSWORD_INVALID(400, "Password invalid", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
+    PROFILE_NOT_FOUND(404, "Profile not found", HttpStatus.NOT_FOUND),
     ;
 
     private final Integer code;

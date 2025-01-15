@@ -8,8 +8,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     @Mapping(target = "roles", ignore = true)
     User toUser(RegisterRequest request);
 
-    UserResponse toUserResponse(User user);
+    UserResponse toUserResponse(User entity);
 }
