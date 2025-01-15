@@ -39,6 +39,17 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    public ProfileResponse updateProfile(String id, ProfileRequest request) {
+        Profile existingProfile = profileRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+
+        existingProfile.setFirstName(request.getFirstName());
+        existingProfile.setLastName(request.getLastName());
+        existingProfile.setAddress(request.getAddress());
+        existingProfile.setPhoneNumber(request.getPhoneNumber());
+        return profileMapper.toProfileResponse(profileRepository.save(existingProfile));
+    }
+
     public void deleteProfile(String id) {
         profileRepository.deleteById(id);
     }

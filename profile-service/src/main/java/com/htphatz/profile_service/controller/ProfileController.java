@@ -39,6 +39,12 @@ public class ProfileController {
         return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
+    @PutMapping("users/{id}")
+    public APIResponse<ProfileResponse> updateProfile(@PathVariable("id") String id, @Valid @RequestBody ProfileRequest request) {
+        ProfileResponse result = profileService.updateProfile(id, request);
+        return APIResponse.<ProfileResponse>builder().result(result).build();
+    }
+
     @DeleteMapping("users/{id}")
     public APIResponse<Void> deleteProfileById(@PathVariable("id") String id) {
         profileService.deleteProfile(id);

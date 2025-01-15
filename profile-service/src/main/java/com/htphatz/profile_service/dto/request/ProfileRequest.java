@@ -20,6 +20,5 @@ public class ProfileRequest {
     @NotBlank(message = "Address is required")
     private String address;
 
-    @NotBlank(message = "User's ID is required")
     private String userId;
 }

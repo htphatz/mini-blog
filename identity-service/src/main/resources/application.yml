@@ -31,3 +31,8 @@ open:
     description: APIs docs for Green Shop website
     serverUrl: ${API_SERVER_URL:http://localhost:8080}
     serverDescription: local
+
+services:
+  profile:
+    url: http://localhost:8081/profile
+
