@@ -1,4 +1,4 @@
-package com.htphatz.identity_service.config;
+package com.htphatz.profile_service.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -25,7 +25,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/auth/register", "/auth/login", "/auth/logout", "/auth/introspect"
+        "/users", "/users/no-format"
     };
 
     @Autowired
@@ -71,10 +71,5 @@ public class WebSecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

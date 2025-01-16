@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,6 +26,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ProfileResponse> getAllProfiles(Integer pageNumber, Integer pageSize) {
         pageNumber--;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -32,6 +34,7 @@ public class ProfileService {
         return PageDto.of(profiles.map(profileMapper::toProfileResponse));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     public ProfileResponse getById(String id) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
