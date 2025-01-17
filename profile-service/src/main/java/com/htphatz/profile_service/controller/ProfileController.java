@@ -20,10 +20,6 @@ public class ProfileController {
         return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
-    @PostMapping("users/no-format")
-    public ProfileResponse createProfileWithNoFormat(@Valid @RequestBody ProfileRequest request) {
-       return profileService.createProfile(request);
-    }
 
     @GetMapping("users")
     public APIResponse<PageDto<ProfileResponse>> getAllProfiles(

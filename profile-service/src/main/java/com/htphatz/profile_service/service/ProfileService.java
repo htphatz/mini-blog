@@ -42,6 +42,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
+    @PreAuthorize("hasROLE('USER')")
     public ProfileResponse updateProfile(String id, ProfileRequest request) {
         Profile existingProfile = profileRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
@@ -53,6 +54,7 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(existingProfile));
     }
 
+    @PreAuthorize("hasROLE('USER')")
     public void deleteProfile(String id) {
         profileRepository.deleteById(id);
     }
