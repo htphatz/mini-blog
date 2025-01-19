@@ -55,6 +55,11 @@ public class CommentService {
         return commentMapper.toCommentResponse(comment);
     }
 
+    public List<CommentResponse> getByPostId(String postId) {
+        List<Comment> comments = commentRepository.findByPostId(postId);
+        return comments.stream().map(commentMapper::toCommentResponse).collect(Collectors.toList());
+    }
+
     public void deleteComment(String id) {
         commentRepository.deleteById(id);
     }

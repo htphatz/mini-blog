@@ -34,6 +34,12 @@ public class CommentController {
         return APIResponse.<CommentResponse>builder().result(result).build();
     }
 
+    @GetMapping("get-comment/{postId}")
+    public APIResponse<List<CommentResponse>> getByPostId(@Valid @PathVariable("postId") String postId) {
+        List<CommentResponse> result = commentService.getByPostId(postId);
+        return APIResponse.<List<CommentResponse>>builder().result(result).build();
+    }
+
     @DeleteMapping("{id}")
     public APIResponse<Void> deletePost(@Valid @PathVariable("id") String id) {
         commentService.deleteComment(id);

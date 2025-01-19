@@ -38,5 +38,5 @@ public class Post {
 
     @ReadOnlyProperty
     @DocumentReference
-    private List<Comment> comments = new ArrayList<>();
+    private List<Comment> comments;
 }

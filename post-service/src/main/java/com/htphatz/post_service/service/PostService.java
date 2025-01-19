@@ -6,6 +6,7 @@ import com.htphatz.post_service.dto.response.PostResponse;
 import com.htphatz.post_service.exception.AppException;
 import com.htphatz.post_service.exception.ErrorCode;
 import com.htphatz.post_service.mapper.PostMapper;
+import com.htphatz.post_service.repository.CommentRepository;
 import com.htphatz.post_service.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class PostService {
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final PostMapper postMapper;
 
     public PostResponse createPost(PostRequest request) {
@@ -53,5 +55,6 @@ public class PostService {
 
     public void deletePost(String id) {
         postRepository.deleteById(id);
+        commentRepository.findByPostId(id).forEach(comment -> commentRepository.deleteById(comment.getId()));
     }
 }
