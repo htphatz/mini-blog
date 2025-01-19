@@ -1,0 +1,14 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /post
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      username: root
+      password: root
+      database: post-service
+      port: 27017
+      host: localhost
