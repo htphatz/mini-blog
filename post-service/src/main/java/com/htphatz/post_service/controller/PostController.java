@@ -2,13 +2,12 @@ package com.htphatz.post_service.controller;
 
 import com.htphatz.post_service.dto.request.PostRequest;
 import com.htphatz.post_service.dto.response.APIResponse;
+import com.htphatz.post_service.dto.response.PageDto;
 import com.htphatz.post_service.dto.response.PostResponse;
 import com.htphatz.post_service.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,9 +21,11 @@ public class PostController {
     }
 
     @GetMapping
-    public APIResponse<List<PostResponse>> getAllPosts() {
-        List<PostResponse> result = postService.getAllPosts();
-        return APIResponse.<List<PostResponse>>builder().result(result).build();
+    public APIResponse<PageDto<PostResponse>> getAllPosts(
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+        PageDto<PostResponse> result = postService.getAllPosts(pageNumber, pageSize);
+        return APIResponse.<PageDto<PostResponse>>builder().result(result).build();
     }
 
     @GetMapping("{id}")

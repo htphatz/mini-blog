@@ -3,12 +3,11 @@ package com.htphatz.post_service.controller;
 import com.htphatz.post_service.dto.request.CommentRequest;
 import com.htphatz.post_service.dto.response.APIResponse;
 import com.htphatz.post_service.dto.response.CommentResponse;
+import com.htphatz.post_service.dto.response.PageDto;
 import com.htphatz.post_service.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("comments")
@@ -23,9 +22,12 @@ public class CommentController {
     }
 
     @GetMapping
-    public APIResponse<List<CommentResponse>> getAllComments() {
-        List<CommentResponse> result = commentService.getAllComments();
-        return APIResponse.<List<CommentResponse>>builder().result(result).build();
+    public APIResponse<PageDto<CommentResponse>> getAllComments(
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize
+    ) {
+        PageDto<CommentResponse> result = commentService.getAllComments(pageNumber, pageSize);
+        return APIResponse.<PageDto<CommentResponse>>builder().result(result).build();
     }
 
     @GetMapping("{id}")
@@ -35,9 +37,12 @@ public class CommentController {
     }
 
     @GetMapping("get-comment/{postId}")
-    public APIResponse<List<CommentResponse>> getByPostId(@Valid @PathVariable("postId") String postId) {
-        List<CommentResponse> result = commentService.getByPostId(postId);
-        return APIResponse.<List<CommentResponse>>builder().result(result).build();
+    public APIResponse<PageDto<CommentResponse>> getByPostId(
+            @Valid @PathVariable("postId") String postId,
+            @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
+        PageDto<CommentResponse> result = commentService.getByPostId(postId, pageNumber, pageSize);
+        return APIResponse.<PageDto<CommentResponse>>builder().result(result).build();
     }
 
     @DeleteMapping("{id}")

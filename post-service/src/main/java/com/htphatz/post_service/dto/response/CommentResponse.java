@@ -11,6 +11,6 @@ public class CommentResponse {
     private String id;
     private String postId;
     private String content;
-    private Instant createAt;
+    private Instant createdAt;
     private Instant updatedAt;
 }

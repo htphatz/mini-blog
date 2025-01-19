@@ -27,7 +27,7 @@ public class Comment {
     private String content;
 
     @Field(name = "created_at")
-    private Instant createAt;
+    private Instant createdAt;
 
     @Field(name = "updated_at")
     private Instant updatedAt;
