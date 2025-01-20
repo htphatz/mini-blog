@@ -10,11 +10,14 @@ import com.htphatz.post_service.exception.ErrorCode;
 import com.htphatz.post_service.mapper.CommentMapper;
 import com.htphatz.post_service.repository.CommentRepository;
 import com.htphatz.post_service.repository.PostRepository;
+import com.htphatz.post_service.repository.httpclient.ProfileClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -24,6 +27,7 @@ import java.time.Instant;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final ProfileClient profileClient;
     private final CommentMapper commentMapper;
 
     public CommentResponse createComment(CommentRequest request) {
@@ -32,6 +36,13 @@ public class CommentService {
         Comment comment = commentMapper.toComment(request);
         comment.setCreatedAt(Instant.now());
         comment.setUpdatedAt(Instant.now());
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userId = authentication.getName();
+        comment.setUserId(userId);
+        var profileResponse = profileClient.getByUserId(userId);
+        String displayName = profileResponse.getFirstName() + " " + profileResponse.getLastName();
+        comment.setDisplayName(displayName);
         return commentMapper.toCommentResponse(commentRepository.save(comment));
     }
 

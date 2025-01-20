@@ -9,29 +9,39 @@ import com.htphatz.post_service.exception.ErrorCode;
 import com.htphatz.post_service.mapper.PostMapper;
 import com.htphatz.post_service.repository.CommentRepository;
 import com.htphatz.post_service.repository.PostRepository;
+import com.htphatz.post_service.repository.httpclient.ProfileClient;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PostService {
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final ProfileClient profileClient;
     private final PostMapper postMapper;
 
     public PostResponse createPost(PostRequest request) {
         Post post = postMapper.toPost(request);
         post.setCreatedAt(Instant.now());
         post.setUpdatedAt(Instant.now());
-        log.info(post.toString());
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        var userId = authentication.getName();
+        post.setUserId(userId);
+        var profileResponse = profileClient.getByUserId(userId);
+        String displayName = profileResponse.getFirstName() + " " + profileResponse.getLastName();
+        post.setDisplayName(displayName);
+
         return postMapper.toPostResponse(postRepository.save(post));
     }
 

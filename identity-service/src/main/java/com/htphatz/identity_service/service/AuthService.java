@@ -116,7 +116,7 @@ public class AuthService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .jwtID(UUID.randomUUID().toString())
                 .issueTime(new Date())
                 .expirationTime(new Date(

@@ -8,5 +8,6 @@ import lombok.Getter;
 public class CommentRequest {
     private String id;
     private String postId;
+    private String userId;
     private String content;
 }

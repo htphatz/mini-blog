@@ -27,6 +27,9 @@ public class Post {
     @Field(name = "user_id")
     private String userId;
 
+    @Field(name = "display_name")
+    private String displayName;
+
     @Field(name = "description")
     private String description;
 

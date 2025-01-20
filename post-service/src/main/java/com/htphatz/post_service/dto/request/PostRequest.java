@@ -7,6 +7,5 @@ import lombok.Getter;
 @Builder
 public class PostRequest {
     private String id;
-    private String userId;
     private String description;
 }

@@ -6,6 +6,8 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -58,21 +60,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatus()).body(apiResponse);
     }
 
-//    @ExceptionHandler(AuthenticationServiceException.class)
-//    public ResponseEntity<APIResponse> handleAuthenticationServiceException(AuthenticationServiceException e) {
-//        APIResponse apiResponse = APIResponse.builder()
-//                .code(401)
-//                .message(e.getMessage())
-//                .build();
-//        return ResponseEntity.status(401).body(apiResponse);
-//    }
-//
-//    @ExceptionHandler(JwtException.class)
-//    public ResponseEntity<APIResponse> handleJwtException(JwtException e) {
-//        APIResponse apiResponse = APIResponse.builder()
-//                .code(401)
-//                .message(e.getMessage())
-//                .build();
-//        return ResponseEntity.status(401).body(apiResponse);
-//    }
+    @ExceptionHandler(AuthenticationServiceException.class)
+    public ResponseEntity<APIResponse> handleAuthenticationServiceException(AuthenticationServiceException e) {
+        APIResponse apiResponse = APIResponse.builder()
+                .code(401)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.status(401).body(apiResponse);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<APIResponse> handleJwtException(JwtException e) {
+        APIResponse apiResponse = APIResponse.builder()
+                .code(401)
+                .message(e.getMessage())
+                .build();
+        return ResponseEntity.status(401).body(apiResponse);
+    }
 }

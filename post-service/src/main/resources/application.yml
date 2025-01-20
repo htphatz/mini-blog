@@ -12,3 +12,7 @@ spring:
       database: post-service
       port: 27017
       host: localhost
+
+services:
+  profile:
+    url: http://localhost:8081/profile

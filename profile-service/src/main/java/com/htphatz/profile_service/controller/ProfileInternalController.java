@@ -5,9 +5,7 @@ import com.htphatz.profile_service.dto.response.ProfileResponse;
 import com.htphatz.profile_service.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,5 +15,10 @@ public class ProfileInternalController {
     @PostMapping("internal/users")
     public ProfileResponse createProfileInternal(@Valid @RequestBody ProfileRequest request) {
         return profileService.createProfile(request);
+    }
+
+    @GetMapping("internal/users/{userId}")
+    public ProfileResponse getByUserIdInternal(@Valid @PathVariable("userId") String userId) {
+        return profileService.getByUserId(userId);
     }
 }

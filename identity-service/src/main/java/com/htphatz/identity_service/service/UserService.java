@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,21 +21,18 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserById(String id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(existingUser);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public UserResponse getUserByEmail(String email) {
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(existingUser);
     }
 
-    @PreAuthorize("hasRole('USER')")
     public UserResponse getMyInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
@@ -46,7 +42,6 @@ public class UserService {
         return userMapper.toUserResponse(existingUser);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<UserResponse> getAllUsers(Integer pageNumber, Integer pageSize) {
         pageNumber--;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);

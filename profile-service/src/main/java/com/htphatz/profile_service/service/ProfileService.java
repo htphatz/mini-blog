@@ -26,7 +26,6 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(profile));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public PageDto<ProfileResponse> getAllProfiles(Integer pageNumber, Integer pageSize) {
         pageNumber--;
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
@@ -34,7 +33,6 @@ public class ProfileService {
         return PageDto.of(profiles.map(profileMapper::toProfileResponse));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     public ProfileResponse getById(String id) {
         Profile profile = profileRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
@@ -42,7 +40,13 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile);
     }
 
-    @PreAuthorize("hasROLE('USER')")
+    public ProfileResponse getByUserId(String userId) {
+        Profile profile = profileRepository.findByUserId(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
+
+        return profileMapper.toProfileResponse(profile);
+    }
+
     public ProfileResponse updateProfile(String id, ProfileRequest request) {
         Profile existingProfile = profileRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_FOUND));
@@ -54,7 +58,6 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profileRepository.save(existingProfile));
     }
 
-    @PreAuthorize("hasROLE('USER')")
     public void deleteProfile(String id) {
         profileRepository.deleteById(id);
     }

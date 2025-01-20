@@ -23,6 +23,12 @@ public class Comment {
     @Field(name = "post_id")
     private String postId;
 
+    @Field(name = "user_id")
+    private String userId;
+
+    @Field(name = "display_name")
+    private String displayName;
+
     @Field(name = "content")
     private String content;
 
