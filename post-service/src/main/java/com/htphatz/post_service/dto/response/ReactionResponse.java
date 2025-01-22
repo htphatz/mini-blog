@@ -1,20 +1,18 @@
 package com.htphatz.post_service.dto.response;
 
+import com.htphatz.post_service.enums.ReactionType;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.Instant;
 
 @Getter
-@Setter
 @Builder
-public class PostResponse {
+public class ReactionResponse {
     private String id;
+    private String postId;
     private String userId;
     private String displayName;
-    private String description;
-    private Integer likedCount;
+    private ReactionType reactionType;
     private Instant createdAt;
-    private Instant updatedAt;
 }

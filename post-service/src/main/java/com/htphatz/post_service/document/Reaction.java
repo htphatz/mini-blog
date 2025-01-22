@@ -1,27 +1,29 @@
 package com.htphatz.post_service.document;
 
+import com.htphatz.post_service.enums.ReactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.FieldType;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
 import java.time.Instant;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Document(collection = "posts")
-public class Post {
+@Document(collection = "reactions")
+public class Reaction {
 
     @MongoId
     private String id;
+
+    @Field(name = "post_id")
+    private String postId;
 
     @Field(name = "user_id")
     private String userId;
@@ -29,23 +31,9 @@ public class Post {
     @Field(name = "display_name")
     private String displayName;
 
-    @Field(name = "description")
-    private String description;
+    @Field(name = "reaction_type", targetType = FieldType.STRING)
+    private ReactionType reactionType;
 
     @Field(name = "created_at")
     private Instant createdAt;
-
-    @Field(name = "updated_at")
-    private Instant updatedAt;
-
-    @Field(name = "liked_count")
-    private Integer likedCount;
-
-    @ReadOnlyProperty
-    @DocumentReference
-    private List<Comment> comments;
-
-    @ReadOnlyProperty
-    @DocumentReference
-    private List<Reaction> reactions;
 }

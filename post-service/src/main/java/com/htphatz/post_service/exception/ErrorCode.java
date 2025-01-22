@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     POST_NOT_FOUND(404, "Post not found", HttpStatus.NOT_FOUND),
-    COMMENT_NOT_FOUND(404, "Comment not found", HttpStatus.NOT_FOUND)
+    COMMENT_NOT_FOUND(404, "Comment not found", HttpStatus.NOT_FOUND),
+    REACTION_NOT_FOUND(404, "Reaction not found", HttpStatus.NOT_FOUND),
+    REACTION_CONFLICT(409, "Reaction conflict", HttpStatus.CONFLICT)
     ;
 
     private final Integer code;
