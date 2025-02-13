@@ -12,3 +12,7 @@ spring:
       database: notification-service
       port: 27017
       host: localhost
+
+brevo:
+  api-key: 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
+  template-id: 2

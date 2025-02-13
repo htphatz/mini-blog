@@ -22,7 +22,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
-        
+        "/send-email"
     };
 
     @Autowired
