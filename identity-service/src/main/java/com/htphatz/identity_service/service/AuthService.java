@@ -1,5 +1,6 @@
 package com.htphatz.identity_service.service;
 
+import com.htphatz.event.NotificationEvent;
 import com.htphatz.identity_service.dto.request.*;
 import com.htphatz.identity_service.dto.response.IntrospectResponse;
 import com.htphatz.identity_service.dto.response.LoginResponse;
@@ -24,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -41,6 +43,7 @@ public class AuthService {
     private final RoleRepository roleRepository;
     private final InvalidatedTokenRepository invalidatedTokenRepository;
     private final ProfileClient profileClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final ProfileMapper profileMapper;
@@ -63,15 +66,21 @@ public class AuthService {
 
         try {
             user = userRepository.save(user);
-
-            // Xử lý profile
-            ProfileRequest profileRequest = profileMapper.toProfileRequest(request);
-            profileRequest.setUserId(user.getId());
-            profileClient.createProfile(profileRequest);
-
         } catch (DataIntegrityViolationException exception) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
+
+        // Xử lý profile
+        ProfileRequest profileRequest = profileMapper.toProfileRequest(request);
+        profileRequest.setUserId(user.getId());
+        profileClient.createProfile(profileRequest);
+
+        // Brevo + Kafka
+        NotificationEvent notificationEvent = NotificationEvent.builder()
+                .recipient(request.getEmail())
+                .build();
+        kafkaTemplate.send("welcome-blog", notificationEvent);
+
         return userMapper.toUserResponse(user);
     }
 
