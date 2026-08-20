@@ -25,5 +25,8 @@
 hs_err_pid*
 replay_pid*
 
+# Environment variables file
+.env
+
 #firebase service account
 /notification-service/src/main/resources/firebase-service-account.json
