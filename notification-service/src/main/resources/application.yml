@@ -4,6 +4,8 @@ server:
     context-path: /notification
 
 spring:
+  application:
+    name: notification-service
   data:
     mongodb:
       authentication-database: admin
@@ -25,3 +27,10 @@ spring:
 brevo:
   api-key: {BREVO_API_KEY}
   template-id: 2
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

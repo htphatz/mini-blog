@@ -11,32 +11,39 @@ spring:
     gateway:
       routes:
         - id: identity-service
-          uri: http://localhost:8080
+          uri: lb://identity-service
           predicates:
             - Path=${app.api-prefix}/identity/**
           filters:
             - StripPrefix=2
         - id: profile-service
-          uri: http://localhost:8081
+          uri: lb://profile-service
           predicates:
             - Path=${app.api-prefix}/profile/**
           filters:
             - StripPrefix=2
         - id: notification-service
-          uri: http://localhost:8082
+          uri: lb://notification-service
           predicates:
             - Path=${app.api-prefix}/notification/**
           filters:
             - StripPrefix=2
         - id: post-service
-          uri: http://localhost:8083
+          uri: lb://post-service
           predicates:
             - Path=${app.api-prefix}/post/**
           filters:
             - StripPrefix=2
         - id: chat-service
-          uri: http://localhost:8084
+          uri: lb://chat-service
           predicates:
             - Path=${app.api-prefix}/chat/**
           filters:
             - StripPrefix=2
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

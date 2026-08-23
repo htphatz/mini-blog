@@ -4,6 +4,8 @@ server:
     context-path: /identity
 
 spring:
+  application:
+    name: identity-service
   datasource:
     url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identity-service}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -40,4 +42,12 @@ open:
 services:
   profile:
     url: http://localhost:8081/profile
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+
 
