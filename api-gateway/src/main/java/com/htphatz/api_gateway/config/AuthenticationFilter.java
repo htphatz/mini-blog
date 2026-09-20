@@ -23,7 +23,8 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
+// Use token provided by Keyclock, so don't need to use this component
+//@Component
 @Slf4j
 @RequiredArgsConstructor
 public class AuthenticationFilter implements GlobalFilter, Ordered {

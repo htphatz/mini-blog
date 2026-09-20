@@ -6,6 +6,11 @@ server:
 spring:
   application:
     name: post-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
   data:
     mongodb:
       authentication-database: admin

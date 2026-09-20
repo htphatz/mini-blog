@@ -8,7 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.text.ParseException;
 
-@Component
+// Use token provided by Keyclock, so don't need to use this component
+//@Component
 public class JwtDecoderConfig implements JwtDecoder {
 
     @Override

@@ -25,8 +25,9 @@ public class WebSecurityConfig {
 
     };
 
-    @Autowired
-    private JwtDecoderConfig jwtDecoderConfig;
+    // Use token provided by Keyclock, so don't need to use this component
+    // @Autowired
+    // private JwtDecoderConfig jwtDecoderConfig;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -38,10 +39,7 @@ public class WebSecurityConfig {
         );
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer
-                                .decoder(jwtDecoderConfig)
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()
-                                )
+                        jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 )
         );
         httpSecurity.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
@@ -62,11 +60,8 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
-
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
         return jwtAuthenticationConverter;
     }
 }

@@ -6,6 +6,11 @@ server:
 spring:
   application:
     name: profile-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
   neo4j:
     uri: bolt://localhost:7687
     authentication:
