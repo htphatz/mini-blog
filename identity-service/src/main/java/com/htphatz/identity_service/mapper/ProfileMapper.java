@@ -9,6 +9,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {
+    @Mapping(target = "userId", ignore = true)
     ProfileRequest toProfileRequest(RegisterRequest request);
 
     @Mapping(source = "id", target = "userId")

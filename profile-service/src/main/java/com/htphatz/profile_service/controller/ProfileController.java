@@ -20,7 +20,6 @@ public class ProfileController {
         return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
-
     @GetMapping("users")
     public APIResponse<PageDto<ProfileResponse>> getAllProfiles(
             @RequestParam(name = "pageNumber", required = false, defaultValue = "1") Integer pageNumber,

@@ -6,10 +6,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ErrorCode {
     USER_EXISTED(409, "User existed", HttpStatus.CONFLICT),
-    ROLE_NOT_FOUND(404, "Role not found", HttpStatus.NOT_FOUND),
     USER_NOT_FOUND(404, "User not found", HttpStatus.NOT_FOUND),
-    PASSWORD_INVALID(400, "Password invalid", HttpStatus.BAD_REQUEST),
+    PASSWORD_INVALID(400, "Invalid email/username or password", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(401, "Unauthorized", HttpStatus.UNAUTHORIZED),
+    USER_CREATION_FAILED(500, "Failed to create user in Keycloak", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNCATEGORIZED_EXCEPTION(500, "Uncategorized exception", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     private final Integer code;

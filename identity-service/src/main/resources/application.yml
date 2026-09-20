@@ -22,6 +22,11 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
   config:
     import: "optional:configserver:http://localhost:8888"
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
 
 jwt:
   signerKey: 1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij
@@ -57,3 +62,9 @@ management:
     web:
       exposure:
         include: refresh, health, env
+
+keycloak:
+  server-url: http://localhost:8484
+  realm: mini-blog-realm
+  client-id: identity-service-client
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:4zt3bb1sT6GhIxCG20Gw4PrvaHD7S1DO}

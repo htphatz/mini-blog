@@ -1,36 +1,24 @@
 package com.htphatz.identity_service.entity;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.*;
 
-import java.util.Set;
-
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @Column(name = "email", unique = true)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
-
-    @Column(name = "password")
-    private String password;
-
-    @ManyToMany
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_name")
-    )
-    private Set<Role> roles;
 }

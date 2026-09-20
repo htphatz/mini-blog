@@ -1,14 +1,15 @@
 package com.htphatz.identity_service.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class LoginRequest {
-
-    @NotBlank(message = "Email is required")
+    @NotBlank(message = "Email/Username is required")
     private String email;
 
     @NotBlank(message = "Password is required")

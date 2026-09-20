@@ -35,9 +35,10 @@ public class UserService {
 
     public UserResponse getMyInfo() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String email = authentication.getName();
+        String identifier = authentication.getName();
 
-        User existingUser = userRepository.findByEmail(email)
+        User existingUser = userRepository.findById(identifier)
+                .or(() -> userRepository.findByEmail(identifier))
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         return userMapper.toUserResponse(existingUser);
     }
