@@ -9,11 +9,25 @@ spring:
     name: api-gateway
   security:
     oauth2:
+      client:
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8484/realms/mini-blog-realm
+        registration:
+          keycloak:
+            provider: keycloak
+            client-id: mini-blog-gateway
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: openid, profile, email
+            client-authentication-method: none
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
   cloud:
     gateway:
+      default-filters:
+        - TokenRelay=
       routes:
         - id: identity-service
           uri: lb://identity-service

@@ -20,10 +20,7 @@ import java.util.List;
 @EnableMethodSecurity
 public class WebSecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
-            "/auth/register",
-            "/auth/login",
-            "/auth/logout",
-            "/users/registration",
+            "/auth/**",
             "/api-docs/**",
             "/swagger-ui/**",
             "/actuator/**"

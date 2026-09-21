@@ -6,6 +6,8 @@ import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,19 +19,32 @@ public class UserContextFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
-                .filter(auth -> auth instanceof JwtAuthenticationToken)
-                .map(auth -> (JwtAuthenticationToken) auth)
-                .map(JwtAuthenticationToken::getToken)
-                .flatMap(jwt -> {
-                    String userId = jwt.getSubject();
-                    String username = jwt.getClaimAsString("preferred_username");
+                .flatMap(auth -> {
+                    String userId = null;
+                    String username = null;
 
-                    ServerHttpRequest request = exchange.getRequest().mutate()
-                            .header("X-User-Id", userId != null ? userId : "")
-                            .header("X-Username", username != null ? username : "")
-                            .build();
+                    if (auth instanceof JwtAuthenticationToken jwtAuth) {
+                        userId = jwtAuth.getToken().getSubject();
+                        username = jwtAuth.getToken().getClaimAsString("preferred_username");
+                    } else if (auth instanceof OAuth2AuthenticationToken oauth2Token) {
+                        if (oauth2Token.getPrincipal() instanceof OidcUser oidcUser) {
+                            userId = oidcUser.getSubject();
+                            username = oidcUser.getPreferredUsername();
+                        } else {
+                            userId = oauth2Token.getName();
+                            username = (String) oauth2Token.getPrincipal().getAttributes().get("preferred_username");
+                        }
+                    }
 
-                    return chain.filter(exchange.mutate().request(request).build());
+                    if (userId != null || username != null) {
+                        ServerHttpRequest request = exchange.getRequest().mutate()
+                                .header("X-User-Id", userId != null ? userId : "")
+                                .header("X-Username", username != null ? username : "")
+                                .build();
+                        return chain.filter(exchange.mutate().request(request).build());
+                    }
+
+                    return chain.filter(exchange);
                 })
                 .switchIfEmpty(chain.filter(exchange));
     }
