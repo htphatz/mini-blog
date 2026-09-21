@@ -11,6 +11,12 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+        alphanumeric-ids:
+          enabled: true
   data:
     mongodb:
       authentication-database: admin
@@ -19,6 +25,40 @@ spring:
       database: post-service
       port: 27017
       host: localhost
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        slowCallRateThreshold: 50
+        slowCallDurationThreshold: 2000ms
+        waitDurationInOpenState: 10000ms
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      profileServiceCB:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3000ms
 
 services:
   profile:

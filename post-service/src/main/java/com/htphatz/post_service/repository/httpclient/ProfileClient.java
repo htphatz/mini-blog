@@ -5,9 +5,19 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "profile-service", path = "/profile")
+import java.util.List;
+
+@FeignClient(
+        name = "profile-service",
+        path = "/profile",
+        fallbackFactory = ProfileClientFallbackFactory.class
+)
 public interface ProfileClient {
 
     @GetMapping(value = "/internal/users/{userId}")
     ProfileResponse getByUserId(@PathVariable("userId") String userId);
+
+    // Mock function
+    @GetMapping("/internal/users")
+    List<ProfileResponse> getAllProfiles();
 }
