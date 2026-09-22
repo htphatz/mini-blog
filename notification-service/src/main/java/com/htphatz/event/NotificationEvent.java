@@ -10,6 +10,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Builder
 public class NotificationEvent {
+    private String eventId;
     private String recipient;
     Map<String, Object> params;
 }
