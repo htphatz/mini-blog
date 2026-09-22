@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package com.htphatz.profile;
+
+option java_multiple_files = true;
+option java_package = "com.htphatz.profile.grpc";
+
+service ProfileGrpcService {
+  rpc GetProfileByUserId (ProfileRequest) returns (ProfileResponse);
+}
+
+message ProfileRequest {
+  string user_id = 1;
+}
+
+message ProfileResponse {
+  string id = 1;
+  string user_id = 2;
+  string first_name = 3;
+  string last_name = 4;
+  string phone_number = 5;
+  string address = 6;
+}

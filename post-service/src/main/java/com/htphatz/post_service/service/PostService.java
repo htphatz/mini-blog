@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import com.htphatz.post_service.service.grpc.ProfileGrpcClient;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class PostService {
     private final CommentRepository commentRepository;
     private final ReactionRepository reactionRepository;
     private final ProfileClient profileClient;
+    private final ProfileGrpcClient profileGrpcClient;
     private final PostMapper postMapper;
 
     public PostResponse createPost(PostRequest request) {
@@ -40,7 +42,8 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         var userId = authentication.getName();
         post.setUserId(userId);
-        var profileResponse = profileClient.getByUserId(userId);
+//        var profileResponse = profileClient.getByUserId(userId);
+        var profileResponse = profileGrpcClient.getProfileByUserId(userId);
         String displayName = profileResponse.getFirstName() + " " + profileResponse.getLastName();
         post.setDisplayName(displayName);
 

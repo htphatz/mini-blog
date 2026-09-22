@@ -64,6 +64,13 @@ services:
   profile:
     url: http://localhost:8081/profile
 
+grpc:
+  client:
+    profile-service:
+      address: 'discovery:///profile-service'
+      negotiationType: plaintext
+      enableKeepAlive: true
+
 eureka:
   client:
     service-url:
