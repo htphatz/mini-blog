@@ -30,3 +30,7 @@ replay_pid*
 
 #firebase service account
 /notification-service/src/main/resources/firebase-service-account.json
+
+# Claude Code local-only files
+.claude/settings.local.json
+CLAUDE.local.md

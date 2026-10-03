@@ -14,8 +14,8 @@ spring:
   data:
     mongodb:
       authentication-database: admin
-      username: root
-      password: root
+      username: ${MONGO_ROOT_USERNAME}
+      password: ${MONGO_ROOT_PASSWORD}
       database: chat-service
       port: 27017
       host: localhost

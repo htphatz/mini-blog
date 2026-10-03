@@ -208,7 +208,7 @@ The infrastructure services exposed by `docker-compose.yml`:
 | **Redis** | `6379` | `6379` | [http://localhost:6379](http://localhost:6379) |
 | **Kafka (KRaft)** | `9092`, `9094` | `9094` | [http://localhost:9094](http://localhost:9094) |
 | **AKHQ (Kafka UI)**| `8080` | `8085` | [http://localhost:8085](http://localhost:8085) |
-| **Keycloak** | `8080` | `8081` | [http://localhost:8081](http://localhost:8081) |
+| **Keycloak** | `8080` | `8484` (set `KEYCLOAK_PORT=8484`) | [http://localhost:8484](http://localhost:8484) |
 | **Zipkin Tracing** | `9411` | `9411` | [http://localhost:9411](http://localhost:9411) |
 
 ---

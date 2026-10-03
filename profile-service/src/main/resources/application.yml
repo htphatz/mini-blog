@@ -14,8 +14,8 @@ spring:
   neo4j:
     uri: bolt://localhost:7687
     authentication:
-      username: neo4j
-      password: profileservice
+      username: ${NEO4J_USER}
+      password: ${NEO4J_PASSWORD}
 
 grpc:
   server:

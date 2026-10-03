@@ -9,8 +9,8 @@ spring:
   datasource:
     url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/identity-service}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${DBMS_USERNAME:root}
-    password: ${DBMS_PASSWORD:mysql}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_ROOT_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
@@ -67,4 +67,4 @@ keycloak:
   server-url: http://localhost:8484
   realm: mini-blog-realm
   client-id: identity-service-client
-  client-secret: ${KEYCLOAK_CLIENT_SECRET:4zt3bb1sT6GhIxCG20Gw4PrvaHD7S1DO}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET}
