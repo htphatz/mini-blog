@@ -4,6 +4,8 @@ server:
     context-path: /notification
 
 spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties]"
   application:
     name: notification-service
   security:
@@ -30,7 +32,7 @@ spring:
         spring.json.trusted.packages: "*"
 
 brevo:
-  api-key: {BREVO_API_KEY}
+  api-key: ${BREVO_API_KEY}
   template-id: 2
 
 eureka:

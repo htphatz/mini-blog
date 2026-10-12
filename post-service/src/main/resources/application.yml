@@ -4,6 +4,8 @@ server:
     context-path: /post
 
 spring:
+  config:
+    import: "optional:file:./.env[.properties],optional:file:../.env[.properties]"
   application:
     name: post-service
   security:
