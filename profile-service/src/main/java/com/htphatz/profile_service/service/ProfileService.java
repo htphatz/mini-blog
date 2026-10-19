@@ -12,8 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +25,34 @@ public class ProfileService {
     private final ProfileMapper profileMapper;
 
     public ProfileResponse createProfile(ProfileRequest request) {
+        var existingProfile = profileRepository.findByUserId(request.getUserId());
+        if (existingProfile.isPresent()) {
+            return profileMapper.toProfileResponse(existingProfile.get());
+        }
         Profile profile = profileMapper.toProfile(request);
         return profileMapper.toProfileResponse(profileRepository.save(profile));
+    }
+
+    public ProfileResponse getOrCreateMyProfile(Jwt jwt) {
+        String userId = jwt.getSubject();
+
+        return profileRepository.findByUserId(userId)
+                .map(profileMapper::toProfileResponse)
+                .orElseGet(() -> {
+                    String firstName = Stream.of(
+                                    jwt.getClaimAsString("given_name"),
+                                    jwt.getClaimAsString("name"),
+                                    jwt.getClaimAsString("preferred_username"))
+                            .filter(StringUtils::hasText)
+                            .findFirst()
+                            .orElse("");
+                    ProfileRequest request = ProfileRequest.builder()
+                            .userId(userId)
+                            .firstName(firstName)
+                            .lastName(jwt.getClaimAsString("family_name"))
+                            .build();
+                    return createProfile(request);
+                });
     }
 
     public PageDto<ProfileResponse> getAllProfiles(Integer pageNumber, Integer pageSize) {

@@ -7,6 +7,8 @@ import com.htphatz.profile_service.dto.response.ProfileResponse;
 import com.htphatz.profile_service.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +28,12 @@ public class ProfileController {
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize) {
         PageDto<ProfileResponse> result = profileService.getAllProfiles(pageNumber, pageSize);
         return APIResponse.<PageDto<ProfileResponse>>builder().result(result).build();
+    }
+
+    @GetMapping("me")
+    public APIResponse<ProfileResponse> getMyProfile(@AuthenticationPrincipal Jwt jwt) {
+        ProfileResponse result = profileService.getOrCreateMyProfile(jwt);
+        return APIResponse.<ProfileResponse>builder().result(result).build();
     }
 
     @GetMapping("users/{id}")

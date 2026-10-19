@@ -66,7 +66,7 @@ public class AuthService {
     @Value("${keycloak.client-id:identity-service-client}")
     private String clientId;
 
-    @Value("${keycloak.client-secret:4zt3bb1sT6GhIxCG20Gw4PrvaHD7S1DO}")
+    @Value("${keycloak.client-secret}")
     private String clientSecret;
 
     private RestClient restClient;
