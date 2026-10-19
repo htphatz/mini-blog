@@ -1,5 +1,6 @@
 server:
   port: 8761
+  address: 127.0.0.1 # Eureka is internal; services register via localhost
 
 spring:
   application:

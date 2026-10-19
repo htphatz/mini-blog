@@ -1,5 +1,6 @@
 server:
   port: 8083
+  address: 127.0.0.1 # only the gateway (same host) may reach this service directly
   servlet:
     context-path: /post
 
@@ -12,7 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8484/realms/mini-blog-realm
   cloud:
     openfeign:
       circuitbreaker:
@@ -66,6 +67,9 @@ services:
   profile:
     url: http://localhost:8081/profile
 
+keycloak:
+  client-id: post-service-client # Keycloak client that owns this service's permissions (client roles in resource_access)
+
 grpc:
   client:
     profile-service:
@@ -79,3 +83,4 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+    ip-address: 127.0.0.1 # register loopback so the gateway can still reach the loopback-bound service

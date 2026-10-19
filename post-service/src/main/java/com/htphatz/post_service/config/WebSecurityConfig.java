@@ -1,6 +1,7 @@
 package com.htphatz.post_service.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -28,6 +29,9 @@ public class WebSecurityConfig {
     // Use token provided by Keyclock, so don't need to use this component
     // @Autowired
     // private JwtDecoderConfig jwtDecoderConfig;
+
+    @Value("${keycloak.client-id}")
+    private String clientId;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -61,7 +65,7 @@ public class WebSecurityConfig {
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter());
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeycloakRoleConverter(clientId));
         return jwtAuthenticationConverter;
     }
 }

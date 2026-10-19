@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.htphatz.post_service.service.grpc.ProfileGrpcClient;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,7 @@ public class PostService {
     private final ProfileGrpcClient profileGrpcClient;
     private final PostMapper postMapper;
 
+    @PreAuthorize("hasAuthority('post:create')")
     public PostResponse createPost(PostRequest request) {
         Post post = postMapper.toPost(request);
         post.setCreatedAt(Instant.now());
@@ -57,6 +59,7 @@ public class PostService {
         return PageDto.of(posts.map(postMapper::toPostResponse));
     }
 
+    @PreAuthorize("hasAuthority('post:update')")
     public PostResponse updatePost(String id, PostRequest request) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
@@ -73,6 +76,7 @@ public class PostService {
         return postMapper.toPostResponse(post);
     }
 
+    @PreAuthorize("hasAuthority('post:delete')")
     public void deletePost(String id) {
         commentRepository.findByPostId(id).forEach(comment -> commentRepository.deleteById(comment.getId()));
         reactionRepository.findByPostId(id).forEach(reaction -> reactionRepository.deleteById(id));

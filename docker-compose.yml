@@ -6,7 +6,7 @@ services:
     container_name: mysql
     hostname: mysql
     ports:
-      - '${MYSQL_PORT}:3306'
+      - '127.0.0.1:${MYSQL_PORT}:3306'
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -25,7 +25,7 @@ services:
     container_name: mongodb
     hostname: mongodb
     ports:
-      - '${MONGO_PORT}:27017'
+      - '127.0.0.1:${MONGO_PORT}:27017'
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -44,8 +44,8 @@ services:
     container_name: neo4j
     hostname: neo4j
     ports:
-      - '${NEO4J_HTTP_PORT}:7474'
-      - '${NEO4J_BOLT_PORT}:7687'
+      - '127.0.0.1:${NEO4J_HTTP_PORT}:7474'
+      - '127.0.0.1:${NEO4J_BOLT_PORT}:7687'
     environment:
       NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
     volumes:
@@ -63,7 +63,7 @@ services:
     container_name: redis
     hostname: redis
     ports:
-      - '${REDIS_PORT}:6379'
+      - '127.0.0.1:${REDIS_PORT}:6379'
     volumes:
       - redis_data:/data
     networks:
@@ -79,7 +79,7 @@ services:
     container_name: kafka
     hostname: kafka
     ports:
-      - '${KAFKA_EXTERNAL_PORT}:9094'
+      - '127.0.0.1:${KAFKA_EXTERNAL_PORT}:9094'
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
@@ -97,7 +97,7 @@ services:
     image: tchiotludo/akhq:0.24.0
     container_name: akhq
     ports:
-      - '${AKHQ_PORT}:8080'
+      - '127.0.0.1:${AKHQ_PORT}:8080'
     environment:
       AKHQ_CONFIGURATION: |
         akhq:
@@ -137,7 +137,7 @@ services:
     container_name: zipkin
     hostname: zipkin
     ports:
-      - '${ZIPKIN_PORT}:9411'
+      - '127.0.0.1:${ZIPKIN_PORT}:9411'
     networks:
       - mini-blog-network
 

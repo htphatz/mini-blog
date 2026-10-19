@@ -1,5 +1,6 @@
 server:
   port: 8080
+  address: 127.0.0.1 # only the gateway (same host) may reach this service directly
   servlet:
     context-path: /identity
 
@@ -29,7 +30,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8484/realms/mini-blog-realm
 
 jwt:
   signerKey: 1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij
@@ -59,6 +60,7 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+    ip-address: 127.0.0.1 # register loopback so the gateway can still reach the loopback-bound service
 
 management:
   endpoints:

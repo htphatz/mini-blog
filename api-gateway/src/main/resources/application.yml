@@ -23,7 +23,7 @@ spring:
             client-authentication-method: none
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8484/realms/mini-blog-realm
   cloud:
     gateway:
       default-filters:

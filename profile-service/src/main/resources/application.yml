@@ -1,5 +1,6 @@
 server:
   port: 8081
+  address: 127.0.0.1 # only the gateway (same host) may reach this service directly
   servlet:
     context-path: /profile
 
@@ -12,7 +13,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://localhost:8484/realms/mini-blog-realm/protocol/openid-connect/certs
+          issuer-uri: http://localhost:8484/realms/mini-blog-realm
   neo4j:
     uri: bolt://localhost:7687
     authentication:
@@ -22,6 +23,7 @@ spring:
 grpc:
   server:
     port: 9091
+    address: 127.0.0.1
 
 eureka:
   client:
@@ -29,6 +31,7 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
+    ip-address: 127.0.0.1 # register loopback so the gateway can still reach the loopback-bound service
     metadata-map:
       grpc-port: ${grpc.server.port:9091}
       gRPC: ${grpc.server.port:9091}

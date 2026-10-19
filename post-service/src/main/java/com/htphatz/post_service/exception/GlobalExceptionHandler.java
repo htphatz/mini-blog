@@ -6,6 +6,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -76,5 +77,15 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .build();
         return ResponseEntity.status(401).body(apiResponse);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<APIResponse> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("Access denied: {}", e.getMessage());
+        APIResponse apiResponse = APIResponse.builder()
+                .code(HttpStatus.FORBIDDEN.value())
+                .message("Access denied")
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiResponse);
     }
 }
