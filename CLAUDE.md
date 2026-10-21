@@ -42,6 +42,8 @@ Config: `config-service` is a Config Server in `native` mode serving `src/main/r
 
 Persistence is polyglot: identity → MySQL; profile → Neo4j (social graph); post/notification/chat → MongoDB; Redis is provisioned but not used yet.
 
+Users who sign up outside `identity-service` (Keycloak Register page, GitHub login) are provisioned by `profile-service`: the `keycloak-kafka` plugin (`keycloak/providers/`, JAR git-ignored) publishes `REGISTER` to topic `keycloak-events`, `KeycloakEventConsumer` creates the profile and emits `welcome-blog`; `GET /profile/me` is the lazy fallback. See `docs/12`–`13`.
+
 ## Claude Code setup
 
 - `.claude/settings.json` (shared): allowed/ask/denied commands, secret-file read blocks, and hooks. A `PostToolUse` hook compiles the affected service after any `.java` edit (offline: `mvnw -o`) and reports errors; a `PreToolUse` hook blocks edits to `.env` (`.env.example` is fine). Personal overrides go in `.claude/settings.local.json` / `CLAUDE.local.md` (git-ignored).

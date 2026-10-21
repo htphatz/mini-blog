@@ -126,9 +126,17 @@ services:
       KC_DB_URL_DATABASE: ${KEYCLOAK_DATABASE}
       KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
       KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KAFKA_TOPIC: keycloak-events
+      KAFKA_CLIENT_ID: keycloak
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_EVENTS: REGISTER
+    volumes:
+      - ./keycloak/providers:/opt/keycloak/providers
     depends_on:
       mysql:
         condition: service_healthy
+      kafka:
+        condition: service_started
     networks:
       - mini-blog-network
 
