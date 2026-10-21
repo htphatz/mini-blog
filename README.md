@@ -49,10 +49,10 @@ A high-performance, resilient Microservices social blogging & real-time messagin
 | **API Gateway** | Central entry point, Routing, Token Validation, Reactive Rate Limiting | Spring Cloud Gateway, Redis |
 | **Discovery Service** | Dynamic Service Registration & Client-Side Load Balancing | Spring Cloud Netflix Eureka |
 | **Config Service** | Centralized & Externalized Configuration Management | Spring Cloud Config, Git/Native |
-| **Identity Service** | User Authentication, Keycloak Integration, Credentials & Token Management | Keycloak, MySQL |
-| **Profile Service** | User Profiles, Social Network Connections & Relationships | Neo4j, Redis |
+| **Identity Service** | Registration Saga (Keycloak user + profile + welcome email), Keycloak Integration, Credentials & Token Management | Keycloak, MySQL, Kafka (Outbox) |
+| **Profile Service** | User Profiles, Social Network Connections & Relationships, Provisioning of users who sign up through Keycloak (Kafka consumer + lazy `GET /profile/me`) | Neo4j, Redis, Kafka |
 | **Post Service** | Blog Content, Categories, Tagging, Comments, Reaction Feed | MongoDB, Redis, gRPC |
-| **Notification Service** | Async Email/Push Notifications via Kafka Event Consumers | Apache Kafka, Brevo API |
+| **Notification Service** | Async Email/Push Notifications via Kafka Event Consumers | Apache Kafka, Brevo API, Firebase Cloud Messaging |
 | **Chat Service** | Real-time One-on-One & Group Messaging | WebSocket, MongoDB |
 
 ---
@@ -128,6 +128,7 @@ mini-blog/
 ├── .env                          # Local environment variables
 ├── .env.example                  # Template environment configuration
 ├── docker-compose.yml            # Multi-container infrastructure stack
+├── keycloak/providers/           # Keycloak plugins mounted into the container (keycloak-kafka JAR, git-ignored)
 ├── docs/                         # In-depth architectural & learning guides
 │   ├── 00-microservices-learning-plan.md
 │   ├── 01-infrastructure-and-docker.md
@@ -138,7 +139,11 @@ mini-blog/
 │   ├── 06-grpc-vs-rest-feign.md
 │   ├── 07-saga-pattern-and-outbox.md
 │   ├── 08-redis-distributed-caching.md
-│   └── 09-distributed-observability.md
+│   ├── 09-distributed-observability.md
+│   ├── 10-network-isolation.md
+│   ├── 11-keycloak-roles-permissions.md
+│   ├── 12-lazy-provisioning-social-login.md
+│   └── 13-keycloak-kafka-register-events.md
 ├── api-gateway/                  # Edge Gateway with Keycloak OIDC & Rate Limiting
 ├── identity-service/             # Authentication & Keycloak integration
 ├── profile-service/              # User profile & Neo4j social graph
@@ -156,6 +161,9 @@ mini-blog/
   * **Authorization Code with PKCE** for frontend/web clients.
   * **Client Credentials** for secure service-to-service internal communication.
 * **Token Validation**: The API Gateway intercepts all incoming requests, decodes and verifies RSA-signed JWT Access Tokens from Keycloak, and forwards user claims (Roles, User ID, Email) downstream via custom headers.
+* **Social Login**: GitHub login through Keycloak Identity Brokering (no OAuth client code in the services); users created this way are provisioned in `profile-service` (see `docs/12`, `docs/13`).
+* **Role / Permission Model**: Permissions are Keycloak client roles (e.g. `post:create`) granted through the `users` group and enforced with `@PreAuthorize` (applied in `post-service`, see `docs/11`).
+* **Network Isolation**: Only `api-gateway` listens on all interfaces; services and infrastructure ports are bound to loopback, except Keycloak whose login page must be reachable from the browser (see `docs/10`).
 * **Rate Limiting**: Reactive Redis Rate Limiter configured at the API Gateway to prevent brute-force attacks and DDoS (Token Bucket algorithm).
 
 ---
@@ -165,7 +173,7 @@ mini-blog/
 ### Inter-Service Communication Strategies
 1. **gRPC (Protobuf over HTTP/2)**: Utilized for high-frequency, low-latency synchronous calls (e.g., `post-service` fetching author details from `profile-service`).
 2. **Spring Cloud OpenFeign (REST)**: Utilized for flexible HTTP APIs wrapped with **Resilience4j Circuit Breakers**.
-3. **Apache Kafka (Asynchronous Messaging)**: Used for non-blocking event publishing (e.g., `UserRegisteredEvent`, `PostPublishedEvent`, `NotificationEvent`).
+3. **Apache Kafka (Asynchronous Messaging)**: Used for non-blocking event publishing (e.g., `UserRegisteredEvent`, `PostPublishedEvent`, `NotificationEvent`). Topics in use: `welcome-blog` (welcome email, produced by the identity-service Outbox or by `profile-service`) and `keycloak-events` (Keycloak `REGISTER` events published by the `keycloak-kafka` plugin).
 
 ---
 
@@ -194,6 +202,9 @@ Check container status:
 docker-compose ps
 ```
 
+### Step 4 (optional): Keycloak Events and Social Login
+To create the profile and send the welcome email when a user registers through Keycloak (or GitHub), download the `keycloak-kafka` plugin into `keycloak/providers/` and enable the `kafka` event listener in the realm (see [`keycloak/providers/README.md`](keycloak/providers/README.md) and `docs/13`). Use plugin version **1.3.0**: 1.4.0 targets Java 21 and Keycloak 24 runs on Java 17. GitHub login is configured as a Keycloak Identity Provider (see `docs/12`). Sending email needs `BREVO_API_KEY` in `.env`.
+
 ---
 
 ## 9. Docker & Infrastructure Deployment
@@ -216,7 +227,8 @@ The infrastructure services exposed by `docker-compose.yml`:
 ## 10. Technical Highlights & Design Patterns
 
 * **Transactional Outbox Pattern**: Guarantees zero event loss during database writes and Kafka event publishing by persisting events into an Outbox table within the same local database transaction.
-* **Saga Pattern (Choreography/Orchestration)**: Manages distributed transactions across `identity-service`, `profile-service`, and `notification-service` with automated compensating transactions on failure.
+* **Saga Pattern (Choreography/Orchestration)**: Manages distributed transactions across `identity-service`, `profile-service`, and `notification-service` with automated compensating transactions on failure. Registration through `identity-service` is an orchestration Saga; registration through Keycloak is a choreography Saga driven by the Keycloak `REGISTER` event (profile first, then welcome email).
+* **Lazy Provisioning**: `GET /profile/me` creates the profile of a Keycloak user on demand from the JWT (idempotent), as a fallback for any user created outside `register()`.
 * **Cache-Aside & Write-Through Patterns**: Multi-tier caching with Spring Cache & Redis to eliminate redundant database queries for hot blog feeds.
 * **Circuit Breaker & Fallback**: Short-circuits failing internal/external dependency calls using Resilience4j sliding window metrics and returns graceful fallbacks.
 * **Distributed Observability**: End-to-end W3C/B3 trace context propagation across HTTP headers and Kafka metadata headers via Micrometer & OpenZipkin.
@@ -237,6 +249,10 @@ For deep technical insights, underlying mechanisms, and architectural trade-offs
 * [07. Distributed Transactions (Saga Pattern & Outbox Pattern)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/07-saga-pattern-and-outbox.md)
 * [08. Distributed Caching Strategies (Redis & Redisson)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/08-redis-distributed-caching.md)
 * [09. Distributed Observability (Prometheus, Grafana & Zipkin)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/09-distributed-observability.md)
+* [10. Service Isolation & Network Segmentation](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/10-network-isolation.md)
+* [11. Authorization (Keycloak Roles & Permissions in Spring Security)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/11-keycloak-roles-permissions.md)
+* [12. Social Login & Lazy Provisioning (GitHub via Keycloak)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/12-lazy-provisioning-social-login.md)
+* [13. Event-Driven Registration (Keycloak Events + Kafka)](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/13-keycloak-kafka-register-events.md)
 
 ---
 
@@ -246,3 +262,5 @@ For deep technical insights, underlying mechanisms, and architectural trade-offs
 * [ ] Integrate Elasticsearch for full-text search across blog posts, tags, and user profiles.
 * [ ] Grafana Dashboards for microservice metrics monitoring (JVM, Kafka throughput, Redis hit/miss rates).
 * [ ] Kubernetes (k8s) manifests & Helm charts for cloud-native deployment.
+* [ ] Dead-letter topics and backoff for Kafka consumers (e.g. `notification-service` currently drops a record after its retries are exhausted).
+* [ ] Unique constraint on the Neo4j `Profile.userId` to close the race between concurrent first requests.

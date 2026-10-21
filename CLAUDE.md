@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project nature
 
-A simple, personal learning project: a mini-blog built as microservices while learning and applying each concept in practice (service discovery, config server, Keycloak/OAuth2, Resilience4j, gRPC vs Feign, Saga + Outbox, Redis caching, observability — see `docs/00`–`09`). It is not production-grade: favor straightforward, readable implementations that demonstrate a pattern over heavy abstraction. Some code intentionally keeps alternatives side by side (e.g. `PostService` keeps the commented-out Feign call next to the gRPC call) for comparison — don't "clean up" these without asking. Commits follow `feat: ...` style, one learning topic per commit. Docs and code comments are a mix of Vietnamese and English.
+A simple, personal learning project: a mini-blog built as microservices while learning and applying each concept in practice (service discovery, config server, Keycloak/OAuth2, Resilience4j, gRPC vs Feign, Saga + Outbox, Redis caching, observability, network isolation, role/permission mapping, social login, Keycloak events over Kafka). It is not production-grade: favor straightforward, readable implementations that demonstrate a pattern over heavy abstraction. Some code intentionally keeps alternatives side by side (e.g. `PostService` keeps the commented-out Feign call next to the gRPC call) for comparison — don't "clean up" these without asking. Commits follow `feat: ...` style, one learning topic per commit. Docs and code comments are a mix of Vietnamese and English.
 
 ## Tech stack
 
@@ -14,7 +14,7 @@ Java 21, Spring Boot 3.4.1–3.4.3, Spring Cloud 2024.0.0 (Gateway, Eureka, Conf
 
 ## Repository layout
 
-Multi-module-in-spirit, but **no parent POM**: each top-level directory (`api-gateway`, `config-service`, `discovery-service`, `identity-service`, `profile-service`, `post-service`, `notification-service`, `chat-service`) is an independent Spring Boot 3 / Java 21 Maven project with its own `mvnw`. Run Maven from inside the service directory. `docs/` holds in-depth design guides (Saga/Outbox, gRPC vs Feign, Keycloak gateway, Resilience4j, etc.); `README.md` has the overview.
+Multi-module-in-spirit, but **no parent POM**: each top-level directory (`api-gateway`, `config-service`, `discovery-service`, `identity-service`, `profile-service`, `post-service`, `notification-service`, `chat-service`) is an independent Spring Boot 3 / Java 21 Maven project with its own `mvnw`. Run Maven from inside the service directory. `docs/` holds in-depth design guides (Saga/Outbox, gRPC vs Feign, Keycloak gateway, Resilience4j, network isolation, roles/permissions, social login, Keycloak events, etc.; all follow the same Phase format: Motivation → Mechanics → Blueprint → Trade-offs); `README.md` has the overview. `keycloak/providers/` holds Keycloak plugins mounted into the container (JARs are git-ignored).
 
 ## Commands
 
@@ -36,13 +36,13 @@ Start order: `discovery-service` (8761) → other services → `api-gateway` (`c
 
 Requests enter via `api-gateway` (Spring Cloud Gateway, WebFlux), which routes `/api/v1/{identity|profile|post|notification|chat}/**` to `lb://<service>` via Eureka with `StripPrefix=2`, relays the Keycloak token (`TokenRelay`), and validates JWTs against realm `mini-blog-realm`.
 
-Ports: api-gateway 8888, identity 8080, profile 8081 (+ gRPC 9091), notification 8082, post 8083, chat 8084.
+Ports: api-gateway 8888, identity 8080, profile 8081 (+ gRPC 9091), notification 8082, post 8083, chat 8084. Only the gateway listens on all interfaces; discovery, identity, profile, post, notification and chat bind `127.0.0.1` (and register `127.0.0.1` with Eureka), and infra ports in `docker-compose.yml` bind loopback (Keycloak excepted); see `docs/10`.
 
 Config: `config-service` is a Config Server in `native` mode serving `src/main/resources/config-repo/` (currently `application.yml` and `identity-service-dev.yml`). Only identity-service imports it (`optional:configserver:`); other services use their local `application.yml`.
 
 Persistence is polyglot: identity → MySQL; profile → Neo4j (social graph); post/notification/chat → MongoDB; Redis is provisioned but not used yet.
 
-Users who sign up outside `identity-service` (Keycloak Register page, GitHub login) are provisioned by `profile-service`: the `keycloak-kafka` plugin (`keycloak/providers/`, JAR git-ignored) publishes `REGISTER` to topic `keycloak-events`, `KeycloakEventConsumer` creates the profile and emits `welcome-blog`; `GET /profile/me` is the lazy fallback. See `docs/12`–`13`.
+Users who sign up outside `identity-service` (Keycloak Register page, GitHub login) are provisioned by `profile-service`: the `keycloak-kafka` plugin (`keycloak/providers/`, JAR git-ignored) publishes `REGISTER` to topic `keycloak-events`, `KeycloakEventConsumer` creates the profile and emits `welcome-blog`; `GET /profile/me` is the lazy fallback. See `docs/12`–`13`. Authorization uses Keycloak client roles as permissions (e.g. `post:create`) granted via the `users` group and enforced with `@PreAuthorize` in `post-service` (`docs/11`).
 
 ## Claude Code setup
 
@@ -54,11 +54,12 @@ Users who sign up outside `identity-service` (Keycloak Register page, GitHub log
 Detailed guidance lives in `.claude/rules/` and loads only when working on matching files:
 
 - `code-style.md` — package layout and coding conventions for service Java code.
-- `cross-service-contracts.md` — registration saga + outbox, gRPC `profile.proto`, and `NotificationEvent` (duplicated across services; keep copies in sync).
+- `cross-service-contracts.md` — registration saga + outbox, registration through Keycloak events, gRPC `profile.proto`, and `NotificationEvent` (duplicated across services; keep copies in sync).
 
 ## Gotchas
 
-- Secrets are `${ENV_VAR}` placeholders with no default, named exactly like the variables in `.env` (`MYSQL_ROOT_PASSWORD`, `MONGO_ROOT_USERNAME`/`MONGO_ROOT_PASSWORD`, `NEO4J_USER`/`NEO4J_PASSWORD`, `KEYCLOAK_CLIENT_SECRET`). Each service loads the repo-root `.env` via `spring.config.import: optional:file:./.env[.properties],optional:file:../.env[.properties]`, so run services from their own directory (or the repo root). `.env` must stay plain `KEY=value` lines (no inline comments, no `export`). Never reintroduce hardcoded defaults.
+- Secrets are `${ENV_VAR}` placeholders with no default, named exactly like the variables in `.env` (`MYSQL_ROOT_PASSWORD`, `MONGO_ROOT_USERNAME`/`MONGO_ROOT_PASSWORD`, `NEO4J_USER`/`NEO4J_PASSWORD`, `KEYCLOAK_CLIENT_SECRET`, `BREVO_API_KEY`). `notification-service` also needs `firebase-service-account.json` in its `src/main/resources/` (git-ignored; not provided by the repo). Each service loads the repo-root `.env` via `spring.config.import: optional:file:./.env[.properties],optional:file:../.env[.properties]`, so run services from their own directory (or the repo root). `.env` must stay plain `KEY=value` lines (no inline comments, no `export`). Never reintroduce hardcoded defaults.
 - Keycloak is expected at `localhost:8484` everywhere in service config, so set `KEYCLOAK_PORT=8484` in `.env`. `api-gateway` and `config-service` both default to port 8888, so run only one of them at a time (config-service is not in use yet); change one port, and the `spring.config.import` URL in `identity-service`, if you need both.
+- The `keycloak-kafka` plugin in `keycloak/providers/` must be version **1.3.0** (Java 17): 1.4.0 targets Java 21 and stops Keycloak 24 from starting. The `kafka` listener must also be added in the realm's Events → Event listeners, otherwise no events are published. Profile and welcome-email creation for Keycloak sign-ups depend on `profile-service` and `notification-service` being up (see `docs/13`).
 - The old Keycloak client secret was committed in git history; rotate it in Keycloak.
 - `.env` holds local secrets; edit `.env.example` for new variables.

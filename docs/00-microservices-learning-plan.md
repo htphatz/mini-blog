@@ -28,6 +28,10 @@ All theoretical foundations, architectural diagrams, deep-dive mechanics, trade-
 - [07-saga-pattern-and-outbox.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/07-saga-pattern-and-outbox.md): Distributed Transactions, Dual-Write Problem, Two-Phase Commit (2PC) vs Saga Pattern, Choreography vs Orchestration, Compensating Transactions (Rollback logic), Transactional Outbox Pattern & Idempotent Consumer.
 - [08-redis-distributed-caching.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/08-redis-distributed-caching.md): Cache-Aside pattern, Write-Through/Write-Behind, Cache Eviction (TTL, LRU), Mitigating Cache Avalanche, Cache Penetration, and Cache Stampede.
 - [09-distributed-observability.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/09-distributed-observability.md): The 3 Pillars of Observability (Metrics, Logs, Traces), Micrometer Tracing, Context Propagation (TraceId, SpanId via W3C/B3 headers), Prometheus pull metrics, Grafana & Zipkin visualization dashboards.
+- [10-network-isolation.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/10-network-isolation.md): Gateway bypass risk, loopback binding vs `0.0.0.0`, Eureka `ip-address` alignment, Docker published ports vs host firewall, Docker networks, Kubernetes NetworkPolicy, firewall allow-lists.
+- [11-keycloak-roles-permissions.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/11-keycloak-roles-permissions.md): Realm/Client/Composite roles, Groups & Default groups, JWT claim to `GrantedAuthority` conversion, `hasRole` vs `hasAuthority`, `@PreAuthorize` and ownership checks, `post-service` rollout.
+- [12-lazy-provisioning-social-login.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/12-lazy-provisioning-social-login.md): Social login via Keycloak Identity Brokering (GitHub), account linking, get-or-create profile from the JWT (`GET /profile/me`).
+- [13-keycloak-kafka-register-events.md](file:///c:/workspace/Backend/personal-projects/microservices/mini-blog/docs/13-keycloak-kafka-register-events.md): Keycloak event listener to Kafka (`keycloak-kafka` plugin), choreography Saga (profile first, then welcome email), idempotent consumers, event payload and troubleshooting.
 
 ---
 
@@ -68,6 +72,22 @@ All theoretical foundations, architectural diagrams, deep-dive mechanics, trade-
 ### Phase 9: Distributed Observability & Monitoring (Zipkin, Prometheus, Grafana)
 * **Focus**: Context propagation tracing across HTTP & Kafka, Micrometer instrumentation, Prometheus metrics collection, Grafana operational dashboards.
 * **Artifact**: `docs/09-distributed-observability.md`.
+
+### Phase 10: Service Isolation & Network Segmentation
+* **Focus**: Make `api-gateway` the only externally reachable service: loopback binding, Eureka address alignment, loopback-bound infrastructure ports, and the path to Docker networks / Kubernetes NetworkPolicy.
+* **Artifact**: `docs/10-network-isolation.md` and updated `application.yml` / `docker-compose.yml`.
+
+### Phase 11: Authorization (Keycloak Roles & Permissions in Spring Security)
+* **Focus**: Realm/client/composite roles and Groups in Keycloak, mapping JWT claims to `GrantedAuthority`, method security with `@PreAuthorize`, ownership checks, applied to `post-service`.
+* **Artifact**: `docs/11-keycloak-roles-permissions.md` and updated `post-service` security configuration.
+
+### Phase 12: Social Login & Lazy Provisioning
+* **Focus**: GitHub login through Keycloak Identity Brokering, and creating the profile on demand from the JWT for users that never went through `register()`.
+* **Artifact**: `docs/12-lazy-provisioning-social-login.md` and `GET /profile/me` in `profile-service`.
+
+### Phase 13: Event-Driven Registration (Keycloak + Kafka)
+* **Focus**: Publish Keycloak `REGISTER` events to Kafka, create the profile and then emit the welcome email event (choreography Saga) without changing `identity-service`.
+* **Artifact**: `docs/13-keycloak-kafka-register-events.md`, `keycloak/providers/`, and `KeycloakEventConsumer` in `profile-service`.
 
 ---
 
